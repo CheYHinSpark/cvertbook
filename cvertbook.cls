@@ -1,14 +1,15 @@
-%版本设定
+% 版本设定
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesClass{cvertbook}[2021/03/08 v0.0 Standard Chinese vertical document class]
 \LoadClassWithOptions{book}
 
-
+% 引用宏包
 \RequirePackage{xeCJK}
 \RequirePackage{ruby}
 \RequirePackage[landscape, includeheadfoot]{geometry} 
 \RequirePackage{zhnumber}
 \RequirePackage{atbegshi}
+\RequirePackage{fancyhdr}
 
 % 边框使用的属性
 \newlength{\myleft}
@@ -47,7 +48,6 @@
   bottom=\mybottom
 }
 \setlength{\parskip}{0pt}
-%\parskip=0pt
 
 % -- 基础的直排效果
 \defaultCJKfontfeatures{RawFeature={vertical:+vert:+vhal}}
@@ -68,19 +68,18 @@
     \box\AtBeginShipoutBox
   }%
 }%
-% ------------------------------------------------
-
 
 % -- 中文化编号
-
-\RequirePackage{titlesec}
-\RequirePackage{titletoc}%,everypage}
+\setcounter{tocdepth}{0}
+\setcounter{secnumdepth}{0}   %设置深度到0即可
 \renewcommand{\thepart}{\zhnum{part}}
 \renewcommand{\thechapter}{\zhnum{chapter}}
 \renewcommand{\thesection}{\zhnum{section}}
 \renewcommand{\thesubsection}{\zhnum{subsection}}
 \newcommand\zhpage{\zhnum{page}}
+\let\sectionmark\@gobble
 
+% 重写所有片段标题
 % 重写部标题部分
 \renewcommand\part{%
   \if@openright \cleardoublepage
@@ -104,83 +103,128 @@
   \else
     \addcontentsline{toc}{part}{#1}%
   \fi
-  \markboth{}{}%
+  \markboth{\MakeUppercase #1}{\MakeUppercase #1}%
   {
-    \vfill
-    \interlinepenalty \@M
-    \normalfont
-    \ifnum \c@secnumdepth >-2\relax
-      \Huge%\bfseries \partname\nobreakspace
-      {第\,}\thepart{\,部}
-      \par
-      \vskip 20\p@
-    \fi
-    \Huge #2
-    \vskip 20\p@}%
-    \@endpart}
-
-\def\@spart#1{%
-{
-  \centering
+  \vfill
   \interlinepenalty \@M
   \normalfont
-  \Huge #1\par}%
+  \ifnum \c@secnumdepth >-2\relax
+    \Huge {第\,}\thepart{\,部}
+    \par \vskip 20\p@
+  \fi
+  \Huge #2
+  \vskip 20\p@
   \@endpart
+  }
+}
+
+\def\@spart#1{%
+  {
+  \vfill
+  \interlinepenalty \@M
+  \normalfont
+  \Huge #1\par
+  \@endpart
+  }
 }
 
 \def\@endpart{
-  %\vfil
   \newpage
-  \if@twoside
-    \if@openright
-      %\null
-      \relax %\thispagestyle{empty}%\newpage
-    \fi
-  \fi
-  \if@tempswa \twocolumn
-  \fi
+  \if@tempswa \twocolumn \fi
 }
 
+% 重写章标题部分
 
+\renewcommand\chapter{
+  \clearpage
+  \global\@topnum\z@
+  \@afterindentfalse
+  \secdef\@chapter\@schapter
+}
 
+\def\@chapter[#1]#2{
+  \ifnum \c@secnumdepth >\m@ne
+    \if@mainmatter
+      \refstepcounter{chapter}%
+      \typeout{\@chapapp\space\thechapter.}%
+      \addcontentsline{toc}{chapter}%
+      {\hspace{2em}\thechapter\hspace{1em}#1}%
+    \else
+      \addcontentsline{toc}{chapter}{\hspace{2em}#1}%
+    \fi
+  \else
+    \addcontentsline{toc}{chapter}{\hspace{2em}#1}%
+  \fi
+  \markright{\MakeUppercase #1}%\chaptermark{#1}%
+  \addtocontents{lof}{\protect\addvspace{10\p@}}%
+  \addtocontents{lot}{\protect\addvspace{10\p@}}%
+  \@makechapterhead{#2}%
+  \@afterheading
+}
 
-% --  usage
-% \titleformat{ command }[ shape ]{ format }{ label }{ sep }{ before }[ after ]
-% \titlespacing{ command }{ left }{ beforesep }{ aftersep }[ right ]
-%----------------------------
-\titleformat{\chapter}[hang]{\Huge\bfseries} 
-{第\,\thechapter\,章} {2pc} {\thispagestyle{empty}}
-\titlespacing{\chapter}{0pc}{*2}{*2}[5pc]                
-%----------------------------
-\titleformat{\section}[hang]{\Large\bfseries}
-{第\,\thesection\,节}{2pc}{}
-\titlespacing{\section}{5pc}{*2}{*2}[5pc]
-%----------------------------
-\titleformat{\subsection}[hang]{}
-{\thesubsection\,}{1em}{}
-\titlespacing{\subsection}{0pc}{*1}{*0}
-%--------------------------------
-% 中文目录
+\def\@makechapterhead#1{%
+  {
+  \vspace*{\baselineskip}%
+  \parindent \z@ \raggedright \normalfont
+  \interlinepenalty\@M
+  \normalsize #1\par\nobreak
+  \vskip \baselineskip
+  }
+}
 
-\titlecontents{chapter}[0em]{}    
-{第\zhnum{\thecontentslabel}章~~}
-{}{\hspace{1em}\titlerule{.}\thecontentspage}
-\titlecontents{section}[4em]{}
-{第\zhnum{\thecontentslabel}节~~}
-{}{\titlerule*{.}\thecontentspage}
-\titlecontents{subsection}[8em]{}
-{第\zhnum{\thecontentslabel}小节~~}
-{}{\titlerule*{.}\thecontentspage}
+\def\@schapter#1{
+  \@makeschapterhead{#1}%
+  \@afterheading
+}
+
+\def\@makeschapterhead#1{%
+  {
+  \vspace*{\baselineskip}%
+  \parindent \z@ \raggedright \normalfont
+  \interlinepenalty\@M
+  \normalsize #1\par\nobreak
+  \vskip \baselineskip
+  }
+}
+
+% 定义节、小节、段、小段
+\renewcommand\section{
+  \@startsection{section}{1}{\z@}%
+  {-\baselineskip}%
+  {\baselineskip}%
+  {\normalfont\normalsize}}
+
+\renewcommand\subsection{
+  \@startsection{subsection}{2}{\z@}%
+  {\baselineskip}%
+  {\z@}%
+  {\normalfont\normalsize}}
+
+\renewcommand\subsubsection{
+  \@startsection{subsubsection}{3}{\z@}%
+  {0pt}%
+  {-1em}%
+  {\normalfont\normalsize}}
+
+\renewcommand\paragraph{
+  \@startsection{paragraph}{4}{\z@}%
+  {0pt}%
+  {-1em}%
+  {\normalfont\normalsize}}
+
+\renewcommand\subparagraph{
+  \@startsection{subparagraph}{5}{\parindent}%
+  {0pt}%
+  {-1em}%
+  {\normalfont\normalsize}}
 
 % -- 页眉页脚设置
-\RequirePackage{fancyhdr}
-
 \pagestyle{fancy}
 \fancyhf{}%清空页眉页脚
-\fancyhead[RE]{第\zhpage 页}%页码位置：偶数页居左，奇数页居右
-\fancyhead[LE]{\thepart}%在偶数页显示\leftmark，通常为章标题
-\fancyfoot[RO]{第\zhpage 页}%页码位置：偶数页居左，奇数页居右
-\fancyfoot[LO]{\thepart}%在偶数页显示\leftmark，通常为章标题
+\fancyhead[RE]{第\zhpage 页}%
+\fancyhead[LE]{\leftmark}%
+\fancyfoot[RO]{第\zhpage 页}%
+\fancyfoot[LO]{\rightmark}%
 \fancypagestyle{plain}{%重新定义plain样式，在章的首页使用plain样式
 \fancyhf{}
 \renewcommand\headrulewidth{0pt}
@@ -208,17 +252,82 @@
   \fi
 }}
 
-\renewcommand{\contentsname}{\centering 目录}
+% -- 重新定义目录
+\renewcommand{\contentsname}{目录}
 \renewcommand\tableofcontents{%
- %\if@twocolumn
-% \@restonecoltrue\onecolumn
- %\else
-% \@restonecolfalse
-% \fi
- \chapter*{\contentsname
+  \chapter*{\contentsname
+  \@mkboth{%
+  \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
+  \@starttoc{toc}%
+  \newpage
+}
+
+\def\@startsubtoc#1{
+  \begingroup \makeatletter 
+  \@input{\jobname.#1}
+  \if@filesw 
+    \expandafter\newwrite
+    \csname tf@#1\endcsname 
+    \immediate\openout
+    \csname tf@#1\endcsname 
+    \jobname.#1\relax 
+  \fi 
+  \@nobreakfalse 
+  \endgroup
+}
+
+\newcommand{\tableofpartsname}{总目录}
+\newcommand\tableofparts{%
+ \chapter*{\tableofpartsname
  \@mkboth{%
- \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
- \@starttoc{toc}%
- %\if@restonecol\twocolumn\fi
+ \MakeUppercase\tableofpartsname}{\MakeUppercase\tableofpartsname}}%
+ \@startsubtoc{subtoc}%
 \newpage
  }
+
+% 目录的目录中的partname
+\newcommand*\l@partname[2]{%
+  \ifnum \c@tocdepth >-2\relax
+    \addpenalty{-\@highpenalty}%
+    \begingroup
+    \parindent \z@ \rightskip \@pnumwidth
+    \parfillskip -\@pnumwidth
+    {\leavevmode
+    #1\hfil \hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}}\par
+    \nobreak
+    \global\@nobreaktrue
+    \everypar{\global\@nobreakfalse\everypar{}}%
+    \endgroup
+  \fi
+}
+
+\renewcommand*\l@part[2]{%
+  \ifnum \c@tocdepth >-2\relax
+    \addpenalty{-\@highpenalty}%
+    \begingroup
+    \parindent \z@ \rightskip \@pnumwidth
+    \parfillskip -\@pnumwidth
+    {\leavevmode
+    #1\hfil \hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}}\par
+    \nobreak
+    \global\@nobreaktrue
+    \everypar{\global\@nobreakfalse\everypar{}}%
+    \endgroup
+  \fi
+  \addcontentsline{subtoc}{partname}{#1}%
+}
+
+\renewcommand*\l@chapter[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \begingroup
+    \parindent \z@ \rightskip \@pnumwidth
+    \parfillskip -\@pnumwidth
+    \leavevmode
+    \advance\leftskip\@tempdima
+    \hskip -\leftskip
+    #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}\par
+    \penalty\@highpenalty
+    \endgroup
+  \fi
+}
