@@ -10,6 +10,7 @@
 \RequirePackage{zhnumber}
 \RequirePackage{atbegshi}
 \RequirePackage{fancyhdr}
+\RequirePackage{supertabular}
 
 % 边框使用的属性
 \newlength{\myleft}
@@ -362,4 +363,17 @@ enabled-hanging = true
     }
     \endgroup
   \fi
+}
+
+\newcommand\biao[2]{%
+  \par\scriptsize
+  \begin{center}
+  \tablefirsthead{\hline}
+  \tabletail{\hline}
+  \tablelasttail{\hline}
+  \begin{supertabular}{#1}%
+  #2
+  \end{supertabular}
+  \end{center}
+  \par\normalsize
 }
