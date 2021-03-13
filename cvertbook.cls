@@ -31,6 +31,8 @@
 \newlength{\vertbookoffset}
 \setlength{\vertbookoffset}{1cm}
 
+\setlength{\parindent}{2em}
+
 % 设置竖排的装订线距离
 \let\@@outputpage\@outputpage
 \def\@outputpage{\expandafter\@oddgeometryeven\@@outputpage}
@@ -53,14 +55,43 @@
 \defaultCJKfontfeatures{RawFeature={vertical:+vert:+vhal}}
 \setCJKmainfont{SimSun}
 
-% 调整英文基线
+% 调整英文基线与句读
+\xeCJKDeclarePunctStyle{judou}
+{
+enabled-hanging = true
+}
+
+\punctstyle{plain}
+
+\newif\if@judou
+\@judoufalse
+\newcommand\judou{\@judoutrue}
+\newif\if@nopunct
+\@nopunctfalse
+\newcommand\nopunct{\@nopuncttrue}
+
 \newcommand*\CJKmovesymbol[1]{\raise.25em\hbox{#1}}
+\newcommand*\CJKmovepunctsymbol[1]{\raise.6em\hb@xt@\z@{\hss#1}}
+\newcommand*\CJKnopunctsymbol[1]{\setbox0=\hb@xt@\z@{\hss#1}\null}  %也不知道為什麼總之這樣可以把標點都消滅
 \newcommand*\CJKmove{
-  \punctstyle{plain}% do not modify the spacing between punctuations
   \let\CJKsymbol\CJKmovesymbol
-  \let\CJKpunctsymbol\CJKsymbol}
+  \if@nopunct
+    \let\CJKpunctsymbol\CJKnopunctsymbol
+  \else
+    \if@judou
+      \xeCJKsetwidth{。，、}{\z@}
+      \xeCJKsetwidth*{。，、}{\z@}
+      \punctstyle{quanjiao}
+      \let\CJKpunctsymbol\CJKmovepunctsymbol
+    \else
+      %\punctstyle{plain}% do not modify the spacing between punctuations
+      \let\CJKpunctsymbol\CJKsymbol
+    \fi
+  \fi
+}
+
 \AtBeginDocument{\CJKmove \sloppy}
- 
+
 % 将纸张旋转90度
 \AtBeginShipout{%
   \global\setbox\AtBeginShipoutBox\vbox{%
@@ -70,14 +101,17 @@
 }%
 
 % -- 中文化编号
+\newif\if@inmain
+\@inmainfalse
+\newcommand\inmain{\@inmaintrue}
 \setcounter{tocdepth}{0}
 \setcounter{secnumdepth}{0}   %设置深度到0即可
 \renewcommand{\thepart}{\zhnum{part}}
 \renewcommand{\thechapter}{\zhnum{chapter}}
 \renewcommand{\thesection}{\zhnum{section}}
 \renewcommand{\thesubsection}{\zhnum{subsection}}
-\newcommand\zhpage{\zhnum{page}}
-\let\sectionmark\@gobble
+\newcommand\zhpage{\zhdigits*{\thepage}}
+\let\sectionmark\@gobble      %取消section的mark
 
 % 重写所有片段标题
 % 重写部标题部分
@@ -99,7 +133,8 @@
 \def\@part[#1]#2{%
   \ifnum \c@secnumdepth >-2\relax
     \refstepcounter{part}%
-    \addcontentsline{toc}{part}{\thepart\hspace{1em}#1}%
+    %\addcontentsline{toc}{part}{\thepart\hspace{1em}#1}%
+    \addcontentsline{toc}{part}{#1}%
   \else
     \addcontentsline{toc}{part}{#1}%
   \fi
@@ -108,12 +143,7 @@
   \vfill
   \interlinepenalty \@M
   \normalfont
-  \ifnum \c@secnumdepth >-2\relax
-    \Huge {第\,}\thepart{\,部}
-    \par \vskip 20\p@
-  \fi
-  \Huge #2
-  \vskip 20\p@
+  \Huge #2 \vskip 2em
   \@endpart
   }
 }
@@ -134,9 +164,10 @@
 }
 
 % 重写章标题部分
-
 \renewcommand\chapter{
-  \clearpage
+  \if@inmain \newpage%\clearpage
+  \else \clearpage
+  \fi
   \global\@topnum\z@
   \@afterindentfalse
   \secdef\@chapter\@schapter
@@ -147,8 +178,8 @@
     \if@mainmatter
       \refstepcounter{chapter}%
       \typeout{\@chapapp\space\thechapter.}%
-      \addcontentsline{toc}{chapter}%
-      {\hspace{2em}\thechapter\hspace{1em}#1}%
+      \addcontentsline{toc}{chapter}{\hspace{2em}#1}%
+      %{\hspace{2em}\thechapter\hspace{1em}#1}%
     \else
       \addcontentsline{toc}{chapter}{\hspace{2em}#1}%
     \fi
@@ -158,8 +189,7 @@
   \markright{\MakeUppercase #1}%\chaptermark{#1}%
   \addtocontents{lof}{\protect\addvspace{10\p@}}%
   \addtocontents{lot}{\protect\addvspace{10\p@}}%
-  \@makechapterhead{#2}%
-  \@afterheading
+  \@makechapterhead{#2}%  \@afterheading %无星号版本允许首段缩进
 }
 
 \def\@makechapterhead#1{%
@@ -173,7 +203,7 @@
 }
 
 \def\@schapter#1{
-  \@makeschapterhead{#1}%
+  \@makeschapterhead{#1}% 
   \@afterheading
 }
 
@@ -221,9 +251,9 @@
 % -- 页眉页脚设置
 \pagestyle{fancy}
 \fancyhf{}%清空页眉页脚
-\fancyhead[RE]{第\zhpage 页}%
+\fancyhead[RE]{\zhpage}%
 \fancyhead[LE]{\leftmark}%
-\fancyfoot[RO]{第\zhpage 页}%
+\fancyfoot[RO]{\zhpage}%
 \fancyfoot[LO]{\rightmark}%
 \fancypagestyle{plain}{%重新定义plain样式，在章的首页使用plain样式
 \fancyhf{}
@@ -255,11 +285,14 @@
 % -- 重新定义目录
 \renewcommand{\contentsname}{目录}
 \renewcommand\tableofcontents{%
+  \setlength{\@tempdima}{\parindent}
+  \setlength{\parindent}{\z@}
   \chapter*{\contentsname
   \@mkboth{%
   \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
   \@starttoc{toc}%
   \newpage
+  \setlength{\parindent}{\@tempdima}
 }
 
 \def\@startsubtoc#1{
@@ -319,15 +352,14 @@
 
 \renewcommand*\l@chapter[2]{%
   \ifnum \c@tocdepth >\m@ne
-    \addpenalty{-\@highpenalty}%
+    %\addpenalty{-\@highpenalty}%
     \begingroup
     \parindent \z@ \rightskip \@pnumwidth
-    \parfillskip -\@pnumwidth
-    \leavevmode
-    \advance\leftskip\@tempdima
-    \hskip -\leftskip
-    #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}\par
-    \penalty\@highpenalty
+    %\parfillskip -\@pnumwidth
+    {\leavevmode
+    #1\nobreak\hfill \nobreak\hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}\par
+    %\penalty\@highpenalty
+    }
     \endgroup
   \fi
 }
