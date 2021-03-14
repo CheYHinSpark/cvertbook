@@ -10,18 +10,18 @@
 \RequirePackage{zhnumber}
 \RequirePackage{atbegshi}
 \RequirePackage{fancyhdr}
-\RequirePackage{supertabular}
+\RequirePackage{longtable}
 
 % 边框使用的属性
 \newlength{\myleft}
 \newlength{\myright}
 \newlength{\mytop}
 \newlength{\mybottom}
-\setlength{\myleft}{2cm}
-\setlength{\myright}{2cm}
-\setlength{\mytop}{3cm}
+\setlength{\myleft}{1.5cm}
+\setlength{\myright}{1.5cm}
+\setlength{\mytop}{2cm}
 \addtolength{\mytop}{-0.25em}
-\setlength{\mybottom}{3cm}
+\setlength{\mybottom}{2cm}
 \addtolength{\mybottom}{0.25em}
 
 \setlength{\topmargin}{0pt}
@@ -134,7 +134,6 @@ enabled-hanging = true
 \def\@part[#1]#2{%
   \ifnum \c@secnumdepth >-2\relax
     \refstepcounter{part}%
-    %\addcontentsline{toc}{part}{\thepart\hspace{1em}#1}%
     \addcontentsline{toc}{part}{#1}%
   \else
     \addcontentsline{toc}{part}{#1}%
@@ -162,6 +161,11 @@ enabled-hanging = true
 \def\@endpart{
   \newpage
   \if@tempswa \twocolumn \fi
+}
+
+% 新命令，子部，例如史记中的本纪，在正文中没有什么效果，只是会在目录中添加一行
+\def\zibu#1{%
+  \addcontentsline{toc}{part}{\hspace{1em}#1}%
 }
 
 % 重写章标题部分
@@ -335,6 +339,8 @@ enabled-hanging = true
   \fi
 }
 
+
+\newcommand\littlesize{\@setfontsize\littlesize\@viiipt\@xpt}
 \renewcommand*\l@part[2]{%
   \ifnum \c@tocdepth >-2\relax
     \addpenalty{-\@highpenalty}%
@@ -365,15 +371,14 @@ enabled-hanging = true
   \fi
 }
 
+% 封装表格命令
 \newcommand\biao[2]{%
-  \par\scriptsize
+  \par
+  {\littlesize%使用小字体
   \begin{center}
-  \tablefirsthead{\hline}
-  \tabletail{\hline}
-  \tablelasttail{\hline}
-  \begin{supertabular}{#1}%
+  \begin{longtable}{#1}%
   #2
-  \end{supertabular}
-  \end{center}
-  \par\normalsize
+  \end{longtable}
+  \end{center}}
+  \par%还原字体
 }
