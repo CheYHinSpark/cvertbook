@@ -12,6 +12,7 @@
 \RequirePackage{fancyhdr}
 \RequirePackage{longtable}
 
+
 % 边框使用的属性
 \newlength{\myleft}
 \newlength{\myright}
