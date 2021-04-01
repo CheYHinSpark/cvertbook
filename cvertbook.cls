@@ -4,7 +4,7 @@
 \LoadClassWithOptions{book}
 
 % 引用宏包
-\RequirePackage{xeCJK}
+\RequirePackage[AutoFallBack]{xeCJK}
 \RequirePackage{ruby}
 \RequirePackage[landscape, includeheadfoot]{geometry} 
 \RequirePackage{zhnumber}
@@ -55,7 +55,9 @@
 
 % -- 基础的直排效果
 \defaultCJKfontfeatures{RawFeature={vertical:+vert:+vhal}}
-\setCJKmainfont{SimSun}
+\setCJKmainfont{中华书局宋体00平面}
+\setCJKfallbackfamilyfont{\CJKrmdefault}
+{{中华书局宋体02平面},{中华书局宋体15平面}}
 
 % 调整英文基线与句读
 \xeCJKDeclarePunctStyle{judou}
