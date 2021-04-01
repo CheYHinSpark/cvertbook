@@ -18,12 +18,12 @@
 \newlength{\myright}
 \newlength{\mytop}
 \newlength{\mybottom}
-\setlength{\myleft}{1.5cm}
-\setlength{\myright}{1.5cm}
-\setlength{\mytop}{2cm}
-\addtolength{\mytop}{-0.25em}
-\setlength{\mybottom}{2cm}
-\addtolength{\mybottom}{0.25em}
+\setlength{\myleft}{1.6cm}
+\setlength{\myright}{1.6cm}
+\setlength{\mytop}{1.56cm}
+\addtolength{\mytop}{-0.3em}
+\setlength{\mybottom}{1.56cm}
+\addtolength{\mybottom}{0.27em}
 
 \setlength{\topmargin}{0pt}
 \setlength{\headheight}{1.7\baselineskip}
@@ -45,6 +45,7 @@
     \setlength{\voffset}{-\vertbookoffset}
 \fi}
 
+
 \geometry{
   left=\myleft,
   right=\myright,
@@ -55,9 +56,6 @@
 
 % -- 基础的直排效果
 \defaultCJKfontfeatures{RawFeature={vertical:+vert:+vhal}}
-\setCJKmainfont{中华书局宋体00平面}
-\setCJKfallbackfamilyfont{\CJKrmdefault}
-{{中华书局宋体02平面},{中华书局宋体15平面}}
 
 % 调整英文基线与句读
 \xeCJKDeclarePunctStyle{judou}
@@ -114,7 +112,8 @@ enabled-hanging = true
 \renewcommand{\thechapter}{\zhnum{chapter}}
 \renewcommand{\thesection}{\zhnum{section}}
 \renewcommand{\thesubsection}{\zhnum{subsection}}
-\newcommand\zhpage{\zhdigits*{\thepage}}
+\newcommand\zhpage{\zhnum{page}}
+%\newcommand\zhpage{\zhdigits*{\thepage}}
 \let\sectionmark\@gobble      %取消section的mark
 
 % 重写所有片段标题
@@ -146,7 +145,7 @@ enabled-hanging = true
   \vfill
   \interlinepenalty \@M
   \normalfont
-  \Huge #2 \vskip 2em
+  \Huge \hspace{2em} #2 \vskip 4em
   \@endpart
   }
 }
@@ -167,8 +166,10 @@ enabled-hanging = true
 }
 
 % 新命令，子部，例如史记中的本纪，在正文中没有什么效果，只是会在目录中添加一行
-\def\zibu#1{%
-  \addcontentsline{toc}{part}{\hspace{1em}#1}%
+\newcommand\zibu[2][]{%
+  \clearpage
+  \markboth{\MakeUppercase #1#2}{\MakeUppercase #1#2}%
+  \addcontentsline{toc}{part}{\hspace{1em}#2}%
 }
 
 % 重写章标题部分
@@ -334,7 +335,7 @@ enabled-hanging = true
     \parindent \z@ \rightskip \@pnumwidth
     \parfillskip -\@pnumwidth
     {\leavevmode
-    #1\hfil \hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}}\par
+    #1\hfil \hb@xt@\@pnumwidth{\hss \zhnumber{#2}}}\par
     \nobreak
     \global\@nobreaktrue
     \everypar{\global\@nobreakfalse\everypar{}}%
@@ -342,8 +343,10 @@ enabled-hanging = true
   \fi
 }
 
-
+% 自定义一个字号
 \newcommand\littlesize{\@setfontsize\littlesize\@viiipt\@xpt}
+
+% 目录样式
 \renewcommand*\l@part[2]{%
   \ifnum \c@tocdepth >-2\relax
     \addpenalty{-\@highpenalty}%
@@ -351,7 +354,7 @@ enabled-hanging = true
     \parindent \z@ \rightskip \@pnumwidth
     \parfillskip -\@pnumwidth
     {\leavevmode
-    #1\hfil \hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}}\par
+    #1\hfil \hb@xt@\@pnumwidth{\hss \zhnumber{#2}}}\par
     \nobreak
     \global\@nobreaktrue
     \everypar{\global\@nobreakfalse\everypar{}}%
@@ -367,7 +370,7 @@ enabled-hanging = true
     \parindent \z@ \rightskip \@pnumwidth
     %\parfillskip -\@pnumwidth
     {\leavevmode
-    #1\nobreak\hfill \nobreak\hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}\par
+    #1\nobreak\hfill \nobreak\hb@xt@\@pnumwidth{\hss \zhnumber{#2}}\par
     %\penalty\@highpenalty
     }
     \endgroup
@@ -375,12 +378,15 @@ enabled-hanging = true
 }
 
 % 封装表格命令
-\newcommand\biao[2]{%
+\newcommand\biao[3][]{%
   \par
   {\littlesize%使用小字体
   \begin{center}
-  \begin{longtable}{#1}%
-  #2
+  \begin{longtable}{#2}%
+    \endfirsthead
+    #1
+    \endhead
+    #3
   \end{longtable}
   \end{center}}
   \par%还原字体
