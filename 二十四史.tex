@@ -1,6 +1,10 @@
 \documentclass[12pt, twocolumn, openany]{cvertbook}
 
-\usepackage{hyperref}
+%\usepackage{hyperref}
+
+\setCJKmainfont{中华书局宋体00平面}
+\setCJKfallbackfamilyfont{\CJKrmdefault}
+{{中华书局宋体02平面},{中华书局宋体15平面}}
 
 %\nopunct    %啟用無標點模式
 
@@ -10,12 +14,18 @@
 
 \begin{document}
 
-%\tableofparts
+\tableofparts
 
 \tableofcontents
 
 \inmain
 
-%\input{./1史記.tex}
+\part[史記]{史記\hspace{2em}{\normalsize 司馬遷}}
+
+\input{./1史記/1本紀.tex}
+\input{./1史記/2表.tex}
+\input{./1史記/3書.tex}
+\input{./1史記/4世家.tex}
+\input{./1史記/5列傳.tex}
 
 \end{document}

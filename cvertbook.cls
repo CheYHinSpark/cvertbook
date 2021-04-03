@@ -30,11 +30,19 @@
 \setlength{\headsep}{0.3\baselineskip}
 \setlength{\footskip}{2\baselineskip}
 
-\newlength{\vertbookoffset}
-\setlength{\vertbookoffset}{1cm}
-
+\geometry{
+  left=\myleft,
+  right=\myright,
+  top=\mytop,
+  bottom=\mybottom
+}
+\setlength{\parskip}{0pt}
 \setlength{\parindent}{2em}
 
+
+% 单双页偏移
+\newlength{\vertbookoffset}
+\setlength{\vertbookoffset}{1cm}
 % 设置竖排的装订线距离
 \let\@@outputpage\@outputpage
 \def\@outputpage{\expandafter\@oddgeometryeven\@@outputpage}
@@ -46,16 +54,16 @@
 \fi}
 
 
-\geometry{
-  left=\myleft,
-  right=\myright,
-  top=\mytop,
-  bottom=\mybottom
-}
-\setlength{\parskip}{0pt}
-
 % -- 基础的直排效果
 \defaultCJKfontfeatures{RawFeature={vertical:+vert:+vhal}}
+% 将纸张旋转90度
+\AtBeginShipout{%
+  \global\setbox\AtBeginShipoutBox\vbox{%
+    \special{pdf: put @thispage <</Rotate 90>>}%
+    \box\AtBeginShipoutBox
+  }%
+}%
+
 
 % 调整英文基线与句读
 \xeCJKDeclarePunctStyle{judou}
@@ -86,7 +94,6 @@ enabled-hanging = true
       \punctstyle{quanjiao}
       \let\CJKpunctsymbol\CJKmovepunctsymbol
     \else
-      %\punctstyle{plain}% do not modify the spacing between punctuations
       \let\CJKpunctsymbol\CJKsymbol
     \fi
   \fi
@@ -94,13 +101,7 @@ enabled-hanging = true
 
 \AtBeginDocument{\CJKmove \sloppy}
 
-% 将纸张旋转90度
-\AtBeginShipout{%
-  \global\setbox\AtBeginShipoutBox\vbox{%
-    \special{pdf: put @thispage <</Rotate 90>>}%
-    \box\AtBeginShipoutBox
-  }%
-}%
+
 
 % -- 中文化编号
 \newif\if@inmain
@@ -115,6 +116,40 @@ enabled-hanging = true
 \newcommand\zhpage{\zhnum{page}}
 %\newcommand\zhpage{\zhdigits*{\thepage}}
 \let\sectionmark\@gobble      %取消section的mark
+
+% -- 页眉页脚设置
+\pagestyle{fancy}
+\fancyhf{}%清空页眉页脚
+\fancyhead[RE]{\zhpage}%
+\fancyhead[LE]{\leftmark}%
+\fancyfoot[RO]{\zhpage}%
+\fancyfoot[LO]{\rightmark}%
+\fancypagestyle{plain}{%重新定义plain样式，在章的首页使用plain样式
+\fancyhf{}
+\renewcommand\headrulewidth{0pt}
+\renewcommand\footrulewidth{0pt}
+}
+
+\def\headrule{{
+  \if@fancyplain
+    \let\headrulewidth\plainheadrulewidth
+  \fi%
+  \ifodd\thepage\relax
+  \else%
+    \vskip 0.3em
+    \hrule\@height 0.5pt \@width\headwidth
+  \fi
+}}
+
+\def\footrule{{
+  \if@fancyplain
+    \let\footrulewidth\plainfootrulewidth
+  \fi%
+  \ifodd\thepage
+    \hrule\@height 0.5pt \@width\headwidth
+    \vskip -0.2em
+  \fi
+}}
 
 % 重写所有片段标题
 % 重写部标题部分
@@ -165,7 +200,7 @@ enabled-hanging = true
   \if@tempswa \twocolumn \fi
 }
 
-% 新命令，子部，例如史记中的本纪，在正文中没有什么效果，只是会在目录中添加一行
+% 新命令，用于标记子部，例如史记中的本纪，在正文中没有什么效果，只是会标记页眉页脚并且在目录中添加一行
 \newcommand\zibu[2][]{%
   \clearpage
   \markboth{\MakeUppercase #1#2}{\MakeUppercase #1#2}%
@@ -188,7 +223,6 @@ enabled-hanging = true
       \refstepcounter{chapter}%
       \typeout{\@chapapp\space\thechapter.}%
       \addcontentsline{toc}{chapter}{\hspace{2em}#1}%
-      %{\hspace{2em}\thechapter\hspace{1em}#1}%
     \else
       \addcontentsline{toc}{chapter}{\hspace{2em}#1}%
     \fi
@@ -257,39 +291,7 @@ enabled-hanging = true
   {-1em}%
   {\normalfont\normalsize}}
 
-% -- 页眉页脚设置
-\pagestyle{fancy}
-\fancyhf{}%清空页眉页脚
-\fancyhead[RE]{\zhpage}%
-\fancyhead[LE]{\leftmark}%
-\fancyfoot[RO]{\zhpage}%
-\fancyfoot[LO]{\rightmark}%
-\fancypagestyle{plain}{%重新定义plain样式，在章的首页使用plain样式
-\fancyhf{}
-\renewcommand\headrulewidth{0pt}
-\renewcommand\footrulewidth{0pt}
-}
 
-\def\headrule{{
-  \if@fancyplain
-    \let\headrulewidth\plainheadrulewidth
-  \fi%
-  \ifodd\thepage\relax
-  \else%
-    \vskip 0.3em
-    \hrule\@height 0.5pt \@width\headwidth
-  \fi
-}}
-
-\def\footrule{{
-  \if@fancyplain
-    \let\footrulewidth\plainfootrulewidth
-  \fi%
-  \ifodd\thepage
-    \hrule\@height 0.5pt \@width\headwidth
-    \vskip -0.2em
-  \fi
-}}
 
 % -- 重新定义目录
 \renewcommand{\contentsname}{目录}
@@ -320,12 +322,12 @@ enabled-hanging = true
 
 \newcommand{\tableofpartsname}{总目录}
 \newcommand\tableofparts{%
- \chapter*{\tableofpartsname
- \@mkboth{%
- \MakeUppercase\tableofpartsname}{\MakeUppercase\tableofpartsname}}%
- \@startsubtoc{subtoc}%
-\newpage
- }
+  \chapter*{\tableofpartsname
+  \@mkboth{%
+  \MakeUppercase\tableofpartsname}{\MakeUppercase\tableofpartsname}}%
+  \@startsubtoc{subtoc}%
+  \newpage
+}
 
 % 目录的目录中的partname
 \newcommand*\l@partname[2]{%
@@ -342,9 +344,6 @@ enabled-hanging = true
     \endgroup
   \fi
 }
-
-% 自定义一个字号
-\newcommand\littlesize{\@setfontsize\littlesize\@viiipt\@xpt}
 
 % 目录样式
 \renewcommand*\l@part[2]{%
@@ -376,6 +375,9 @@ enabled-hanging = true
     \endgroup
   \fi
 }
+
+% 自定义一个字号
+\newcommand\littlesize{\@setfontsize\littlesize\@viiipt\@xpt}
 
 % 封装表格命令
 \newcommand\biao[3][]{%
