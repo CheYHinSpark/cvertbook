@@ -37,7 +37,7 @@
   bottom=\mybottom
 }
 \setlength{\parskip}{0pt}
-\setlength{\parindent}{2em}
+\setlength{\parindent}{0em}
 
 
 % 单双页偏移
@@ -67,9 +67,7 @@
 
 % 调整英文基线与句读
 \xeCJKDeclarePunctStyle{judou}
-{
-enabled-hanging = true
-}
+{enabled-hanging = true}
 
 \punctstyle{plain}
 
@@ -114,7 +112,6 @@ enabled-hanging = true
 \renewcommand{\thesection}{\zhnum{section}}
 \renewcommand{\thesubsection}{\zhnum{subsection}}
 \newcommand\zhpage{\zhnum{page}}
-%\newcommand\zhpage{\zhdigits*{\thepage}}
 \let\sectionmark\@gobble      %取消section的mark
 
 % -- 页眉页脚设置
