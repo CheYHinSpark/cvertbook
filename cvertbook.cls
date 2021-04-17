@@ -20,9 +20,9 @@
 \newlength{\mybottom}
 \setlength{\myleft}{1.6cm}
 \setlength{\myright}{1.6cm}
-\setlength{\mytop}{1.56cm}
+\setlength{\mytop}{1.16cm}
 \addtolength{\mytop}{-0.3em}
-\setlength{\mybottom}{1.56cm}
+\setlength{\mybottom}{1.16cm}
 \addtolength{\mybottom}{0.27em}
 
 \setlength{\topmargin}{0pt}
@@ -87,8 +87,8 @@
     \let\CJKpunctsymbol\CJKnopunctsymbol
   \else
     \if@judou
-      \xeCJKsetwidth{。，、}{\z@}
-      \xeCJKsetwidth*{。，、}{\z@}
+      \xeCJKsetwidth{。，、.．}{\z@}
+      \xeCJKsetwidth*{。，、.．}{\z@}
       \punctstyle{quanjiao}
       \let\CJKpunctsymbol\CJKmovepunctsymbol
     \else
@@ -111,7 +111,7 @@
 \renewcommand{\thechapter}{\zhnum{chapter}}
 \renewcommand{\thesection}{\zhnum{section}}
 \renewcommand{\thesubsection}{\zhnum{subsection}}
-\newcommand\zhpage{\zhnum{page}}
+\newcommand\zhpage{\zhdigits*{\thepage}}
 \let\sectionmark\@gobble      %取消section的mark
 
 % -- 页眉页脚设置
@@ -234,7 +234,8 @@
 
 \def\@makechapterhead#1{%
   {
-  \vspace*{\baselineskip}%
+  %\vspace*{\baselineskip}%
+  \vspace*{0.35em}%
   \parindent \z@ \raggedright \normalfont
   \interlinepenalty\@M
   \normalsize #1\par\nobreak
@@ -249,7 +250,7 @@
 
 \def\@makeschapterhead#1{%
   {
-  \vspace*{\baselineskip}%
+  \vspace*{0.0em}%
   \parindent \z@ \raggedright \normalfont
   \interlinepenalty\@M
   \normalsize #1\par\nobreak
@@ -291,13 +292,13 @@
 
 
 % -- 重新定义目录
-\renewcommand{\contentsname}{目录}
+\renewcommand{\contentsname}{目\hspace{1em}錄}
 \renewcommand\tableofcontents{%
   \setlength{\@tempdima}{\parindent}
   \setlength{\parindent}{\z@}
   \chapter*{\contentsname
   \@mkboth{%
-  \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}%
+  \MakeUppercase 目錄}{\MakeUppercase 目錄}}%
   \@starttoc{toc}%
   \newpage
   \setlength{\parindent}{\@tempdima}
@@ -317,7 +318,7 @@
   \endgroup
 }
 
-\newcommand{\tableofpartsname}{总目录}
+\newcommand{\tableofpartsname}{總\hspace{1em}目\hspace{1em}錄}
 \newcommand\tableofparts{%
   \chapter*{\tableofpartsname
   \@mkboth{%
@@ -334,7 +335,7 @@
     \parindent \z@ \rightskip \@pnumwidth
     \parfillskip -\@pnumwidth
     {\leavevmode
-    #1\hfil \hb@xt@\@pnumwidth{\hss \zhnumber{#2}}}\par
+    #1\hfil \hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}}\par
     \nobreak
     \global\@nobreaktrue
     \everypar{\global\@nobreakfalse\everypar{}}%
@@ -350,7 +351,7 @@
     \parindent \z@ \rightskip \@pnumwidth
     \parfillskip -\@pnumwidth
     {\leavevmode
-    #1\hfil \hb@xt@\@pnumwidth{\hss \zhnumber{#2}}}\par
+    #1\hfil \hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}}\par
     \nobreak
     \global\@nobreaktrue
     \everypar{\global\@nobreakfalse\everypar{}}%
@@ -366,7 +367,7 @@
     \parindent \z@ \rightskip \@pnumwidth
     %\parfillskip -\@pnumwidth
     {\leavevmode
-    #1\nobreak\hfill \nobreak\hb@xt@\@pnumwidth{\hss \zhnumber{#2}}\par
+    #1\nobreak\hfill \nobreak\hb@xt@\@pnumwidth{\hss \zhdigits*{#2}}\par
     %\penalty\@highpenalty
     }
     \endgroup
@@ -374,12 +375,13 @@
 }
 
 % 自定义一个字号
-\newcommand\littlesize{\@setfontsize\littlesize\@viiipt\@xpt}
+\newcommand\littlesize{\@setfontsize\littlesize\@xpt\@xiipt}
 
 % 封装表格命令
 \newcommand\biao[3][]{%
   \par
   {\littlesize%使用小字体
+  \linespread{1.0}\selectfont
   \begin{center}
   \begin{longtable}{#2}%
     \endfirsthead
