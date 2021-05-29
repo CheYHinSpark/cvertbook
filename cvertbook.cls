@@ -298,7 +298,8 @@
   \setlength{\parindent}{\z@}
   \chapter*{\contentsname
   \@mkboth{%
-  \MakeUppercase 目錄}{\MakeUppercase 目錄}}%
+  \MakeUppercase 目錄}{\MakeUppercase 目錄}
+  }%
   \@starttoc{toc}%
   \newpage
   \setlength{\parindent}{\@tempdima}
